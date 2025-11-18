@@ -1100,3 +1100,5 @@ app.listen(port, () => {
     console.log(`   GET  /chill-gamer/watchlist/:email`);
     console.log(`   POST /chill-gamer/watchlist`);
 });
+
+module.exports = app;
