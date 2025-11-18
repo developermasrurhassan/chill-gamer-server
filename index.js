@@ -1089,16 +1089,6 @@ async function generateSampleData() {
 
 run().catch(console.dir);
 
-app.listen(port, () => {
-    console.log(`🎮 Chill Gamer server running on port ${port}`);
-    console.log(`📍 API Base URL: http://localhost:${port}`);
-    console.log(`📚 Available endpoints:`);
-    console.log(`   GET  /chill-gamer/reviews`);
-    console.log(`   GET  /chill-gamer/reviews/highest-rated`);
-    console.log(`   GET  /chill-gamer/reviews/:id`);
-    console.log(`   POST /chill-gamer/reviews`);
-    console.log(`   GET  /chill-gamer/watchlist/:email`);
-    console.log(`   POST /chill-gamer/watchlist`);
-});
+
 
 module.exports = app;
