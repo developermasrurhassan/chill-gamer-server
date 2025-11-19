@@ -1,13 +1,11 @@
 [build]
-  command = "npm install"
+  command = "echo 'No build needed'"
   publish = "."
 
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api"
-  status = 200
+[functions]
+  node_bundler = "esbuild"
 
 [[redirects]]
   from = "/*"
-  to = "/.netlify/functions/api"
+  to = "/.netlify/functions/server"
   status = 200
