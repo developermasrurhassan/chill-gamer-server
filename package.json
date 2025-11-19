@@ -1,31 +1,23 @@
 {
-  "name": "chill-gamer-server",
+  "name": "server",
   "version": "1.0.0",
-  "description": "Chill Gamer API Server",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "build": "vercel build",
     "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
-  "keywords": [
-    "gaming",
-    "reviews",
-    "api"
-  ],
+  "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "mongodb": "^7.0.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.11"
-  },
-  "engines": {
-    "node": "18.x"
+    "mongodb": "^7.0.0",
+    "nodemon": "^3.1.11",
+    "vercel": "^41.0.2"
   }
 }
