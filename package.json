@@ -26,9 +26,6 @@
     "env": "^0.0.2",
     "express": "^5.1.0",
     "mongodb": "^7.0.0",
-    "netlify-cli": "^23.11.1",
-    "netlify-lambda": "^0.4.0",
-    "nodemon": "^3.1.11",
-    "serverless-http": "^4.0.0"
+    "nodemon": "^3.1.11"
   }
 }

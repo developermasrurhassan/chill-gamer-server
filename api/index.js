@@ -1,5 +1,4 @@
 const express = require('express');
-const serverless = require('serverless-http');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 require('dotenv').config();
@@ -12,7 +11,8 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB Configuration
-const uri = process.env.MONGODB_URI || 'mongodb+srv://chill_gamer:MsH7zI9pX5mXjVxL@devloper-masrur.ljjckc4.mongodb.net/chill_gamer?retryWrites=true&w=majority';
+const uri = process.env.MONGODB_URI;
+
 const dbName = 'chill_gamer';
 
 const client = new MongoClient(uri, {
@@ -374,16 +374,10 @@ app.get('/health', async (req, res) => {
 
 console.log("✅ All API routes are set up successfully!");
 
-// ========== DUAL EXPORT ==========
-// Works for both Local Development AND Netlify
 
-// Start local server if not in production
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(port, () => {
-        console.log(`🚀 Local Server running on http://localhost:${port}`);
-    });
-}
 
-// Export for Netlify serverless functions
-module.exports = app;
-module.exports.handler = serverless(app);
+
+// Export app for deployment
+module.exports = (req, res) => app(req, res);
+
+// Export app for testing
