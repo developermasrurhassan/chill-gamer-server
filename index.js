@@ -10,7 +10,13 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// MongoDB connection
 const uri = process.env.MONGODB_URI;
+if (!uri) {
+    console.error('MONGODB_URI environment variable is required');
+    process.exit(1);
+}
+
 const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
@@ -22,19 +28,36 @@ const client = new MongoClient(uri, {
 // Database Name
 const dbName = 'chill_gamer';
 
+// Database collections (will be initialized in run())
+let reviewsCollection, usersCollection, watchlistCollection, gamesCollection;
+
 async function run() {
     try {
         await client.connect();
         console.log("Connected to MongoDB!");
 
         const database = client.db(dbName);
-        const reviewsCollection = database.collection('reviews');
-        const usersCollection = database.collection('users');
-        const watchlistCollection = database.collection('watchlist');
-        const gamesCollection = database.collection('games');
+        reviewsCollection = database.collection('reviews');
+        usersCollection = database.collection('users');
+        watchlistCollection = database.collection('watchlist');
+        gamesCollection = database.collection('games');
 
-        // Generate and insert sample data
-        await generateSampleData();
+        console.log("Database collections initialized!");
+
+        // ========== HEALTH CHECK ==========
+        app.get('/', (req, res) => {
+            res.json({
+                message: 'Chill Gamer API is running!',
+                timestamp: new Date().toISOString(),
+                endpoints: {
+                    reviews: '/chill-gamer/reviews',
+                    watchlist: '/chill-gamer/watchlist/:email',
+                    games: '/chill-gamer/games',
+                    users: '/chill-gamer/users/:email',
+                    search: '/chill-gamer/search/reviews'
+                }
+            });
+        });
 
         // ========== REVIEWS API ROUTES ==========
 
@@ -284,110 +307,18 @@ async function run() {
             }
         });
 
-        // Health check
-        app.get('/', (req, res) => {
-            res.json({
-                message: 'Chill Gamer API is running!',
-                timestamp: new Date().toISOString(),
-                endpoints: {
-                    reviews: '/chill-gamer/reviews',
-                    watchlist: '/chill-gamer/watchlist/:email',
-                    games: '/chill-gamer/games',
-                    users: '/chill-gamer/users/:email',
-                    search: '/chill-gamer/search/reviews'
-                }
-            });
-        });
-
         console.log("All API routes are set up successfully!");
+
+        // Start server only if not in Vercel environment
+        if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+            app.listen(port, () => {
+                console.log(`Server is running on port ${port}`);
+            });
+        }
 
     } catch (error) {
         console.error('Failed to start server:', error);
-    }
-}
-
-// Sample Data Generation
-async function generateSampleData() {
-    try {
-        const database = client.db(dbName);
-
-        // Clear existing data (optional - remove in production)
-        await database.collection('reviews').deleteMany({});
-        await database.collection('games').deleteMany({});
-        await database.collection('users').deleteMany({});
-        await database.collection('watchlist').deleteMany({});
-
-        // Sample Games Data (your existing games array)
-        const games = [
-            // BATTLE ROYALE GAMES
-            {
-                _id: new ObjectId(),
-                title: "PUBG: BATTLEGROUNDS",
-                coverImage: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/578080/841ea38bc58cabb70aef65365cf50bc2d79329d9/header.jpg?t=1746590920",
-                genre: ["Shooter", "Battle Royale", "Action"],
-                releaseYear: 2017,
-                developer: "KRAFTON, Inc.",
-                platforms: ["PC", "PlayStation", "Xbox", "Mobile"],
-                description: "The original battle royale experience that started it all. Parachute onto a massive map, scavenge for weapons, and be the last one standing in intense tactical combat.",
-                rating: 4.3,
-                price: 29.99
-            },
-            {
-                _id: new ObjectId(),
-                title: "PUBG Mobile",
-                coverImage: "https://play-lh.googleusercontent.com/uqq6a-fHayQxsNQkxB9ZZXag8N7Du5mOEKcScr9yltHqx3RKgCdr9VJHKGO2vY_GUe0",
-                genre: ["Shooter", "Battle Royale", "Action"],
-                releaseYear: 2018,
-                developer: "Tencent Games",
-                platforms: ["Mobile"],
-                description: "The mobile version of the world's most popular battle royale game. Optimized for touch devices with exclusive content and fast-paced matches.",
-                rating: 4.5,
-                price: 0
-            },
-            // ... (include all your other games here)
-        ];
-
-        await database.collection('games').insertMany(games);
-
-        // Sample Reviews Data (your existing reviews array)
-        const reviews = [
-            {
-                _id: new ObjectId(),
-                gameTitle: "PUBG: BATTLEGROUNDS",
-                gameCover: "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/578080/841ea38bc58cabb70aef65365cf50bc2d79329d9/header.jpg?t=1746590920",
-                description: "The game that defined the battle royale genre. Despite newer competitors, PUBG remains the most tactical and realistic BR experience. The gunplay is unmatched, and the tension in final circles is incredible.",
-                rating: 4,
-                year: 2023,
-                genre: "Battle Royale",
-                userEmail: "battle_royale_fan@example.com",
-                userName: "Alex Turner",
-                userPhoto: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-                createdAt: new Date('2024-01-20'),
-                updatedAt: new Date('2024-01-20')
-            },
-            // ... (include all your other reviews here)
-        ];
-
-        await database.collection('reviews').insertMany(reviews);
-
-        // Sample Users
-        const users = [
-            {
-                _id: new ObjectId(),
-                email: "gamer1@example.com",
-                name: "John Doe",
-                photoURL: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-                joinDate: new Date('2023-12-01'),
-                role: "user"
-            },
-            // ... (include all your other users here)
-        ];
-
-        await database.collection('users').insertMany(users);
-
-        console.log("Sample data generated successfully!");
-    } catch (error) {
-        console.error("Error generating sample data:", error);
+        process.exit(1);
     }
 }
 
