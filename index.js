@@ -37,6 +37,10 @@ async function run() {
         await generateSampleData();
 
         // ========== REVIEWS API ROUTES ==========
+        // Your routes here
+        app.get('/', (req, res) => {
+            res.json({ message: 'Server is running!' });
+        });
 
         // Get all reviews
         app.get('/chill-gamer/reviews', async (req, res) => {
